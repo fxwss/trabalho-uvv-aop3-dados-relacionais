@@ -1,0 +1,33 @@
+{
+  "name": "@precos/web",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "check": "tsc -b",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@precos/shared": "*",
+    "@tanstack/react-query": "^5.103.2",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.4",
+    "recharts": "^3.10.1",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.7",
+    "@rolldown/plugin-babel": "^0.2.3",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/babel__core": "^7.20.5",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "babel-plugin-react-compiler": "^1.0.0",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.3.0"
+  }
+}

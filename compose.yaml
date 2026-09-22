@@ -1,0 +1,97 @@
+name: precos-combustiveis
+
+services:
+  # Banco PostgreSQL com o projeto fisico da AOP2 e a carga gerada por `npm run seed`.
+  db:
+    image: postgres:16-alpine
+    container_name: precos-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-combustivel}
+      POSTGRES_USER: ${POSTGRES_USER:-precos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-precos}
+    volumes:
+      - dados-postgres:/var/lib/postgresql/data
+      - ./dados:/carga:ro
+      - ./docker/db/init.sh:/docker-entrypoint-initdb.d/01-carga.sh:ro
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-precos} -d ${POSTGRES_DB:-combustivel}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks:
+      - precos
+
+  # API Node que executa as consultas do item II.d e gera as planilhas do item II.e.
+  api:
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile
+    container_name: precos-api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-precos}:${POSTGRES_PASSWORD:-precos}@db:5432/${POSTGRES_DB:-combustivel}
+      PORT: 3333
+      NODE_ENV: production
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - precos
+
+  # Site estatico servido por nginx, com proxy de /api para a API.
+  web:
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile
+    container_name: precos-web
+    restart: unless-stopped
+    ports:
+      - "${PORTA_SITE:-8080}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - precos
+
+  # Banco exposto para desenvolvimento local e para os testes de integracao.
+  # Suba apenas ele com: npm run banco:dev
+  db-dev:
+    image: postgres:16-alpine
+    container_name: precos-db-dev
+    profiles: ["dev"]
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-combustivel}
+      POSTGRES_USER: ${POSTGRES_USER:-precos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-precos}
+    ports:
+      - "${PORTA_BANCO_LOCAL:-5433}:5432"
+    volumes:
+      - dados-postgres-dev:/var/lib/postgresql/data
+      - ./dados:/carga:ro
+      - ./docker/db/init.sh:/docker-entrypoint-initdb.d/01-carga.sh:ro
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-precos} -d ${POSTGRES_DB:-combustivel}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks:
+      - precos
+
+volumes:
+  dados-postgres:
+  dados-postgres-dev:
+
+networks:
+  precos:
+    driver: bridge

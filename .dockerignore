@@ -1,0 +1,19 @@
+# Dependencias e artefatos que nao devem entrar no contexto de build
+
+node_modules
+\*\*/node_modules
+
+dist
+\*\*/dist
+
+.git
+.gitignore
+.vscode
+.idea
+
+_.log
+.env
+.env._
+!.env.example
+
+README.md

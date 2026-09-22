@@ -1,0 +1,41 @@
+{
+  "name": "site-coleta-dados-combustivel",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "AOP3 - site de divulgacao dos precos de combustiveis de Vila Velha/ES",
+  "engines": {
+    "node": ">=20"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "predev": "node scripts/verificar-ambiente.mjs --precisa-banco",
+    "prebuild": "node scripts/verificar-ambiente.mjs",
+    "preseed": "node scripts/verificar-ambiente.mjs",
+    "pretest": "node scripts/verificar-ambiente.mjs --precisa-banco",
+    "dev": "concurrently -k -n api,web -c blue,green \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "npm run dev --prefix apps/api",
+    "dev:web": "npm run dev --prefix apps/web",
+    "build": "npm run build --prefix apps/api && npm run build --prefix apps/web",
+    "check": "npm run check --prefix packages/shared && npm run check --prefix apps/api && npm run check --prefix apps/web",
+    "lint": "oxlint apps packages scripts",
+    "seed": "tsx scripts/gerar-seed.ts",
+    "apresentacao": "node scripts/gerar-apresentacao.mjs",
+    "test": "npm run test --prefix apps/api",
+    "banco:dev": "docker compose --profile dev up -d db-dev",
+    "diagnostico": "node scripts/diagnosticar-banco.mjs",
+    "compose:up": "docker compose up -d --build",
+    "compose:down": "docker compose down",
+    "compose:reset": "docker compose down -v && docker compose up -d --build"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "concurrently": "^10.0.5",
+    "oxlint": "^1.81.0",
+    "tsx": "^4.20.6",
+    "typescript": "~6.0.2"
+  }
+}
