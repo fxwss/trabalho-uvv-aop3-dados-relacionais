@@ -15,7 +15,7 @@
     "@hono/node-server": "^2.1.1",
     "@precos/shared": "*",
     "exceljs": "^4.4.0",
-    "hono": "^4.13.8",
+    "hono": "^4.13.11",
     "pg": "^8.23.0",
     "zod": "^4.6.5"
   },
